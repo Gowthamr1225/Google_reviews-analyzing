@@ -25,5 +25,7 @@ Each review undergoes a structured 6-point analysis:
 - Competitor comparison highlights
 
 4.Trend Detection → Spot recurring issues or emerging strengths.
+
 5.Business Reputation Scoring → Quantifies customer perception over time.
+
 6.Dashboard Visualization → Clear, interactive insights for decision-makers.
