@@ -18,7 +18,9 @@ An AI-powered platform designed to help local businesses extract actionable insi
 Each review undergoes a structured 6-point analysis:
 
 1.Sentiment Analysis → Detects customer happiness, dissatisfaction, or recurring complaints.
+
 2.Thematic Categorization → Identifies key themes like slow service, pricing, or staff.
+
 3.Actionable Recommendations (Personalized) → Practical advice tailored to business needs.
 - Operational improvement suggestions
 - Trend-based business recommendations
