@@ -5,12 +5,14 @@
 Business Reputation & Insights Analyzer using LLMs 🚀
 An AI-powered platform designed to help local businesses extract actionable insights from thousands of unstructured customer reviews (simulating Google Maps reviews). The system leverages LLM workflows to transform raw text into clear, strategic business recommendations.
 
-🛠️ Tech Stack
-Component	Technology / Skill	Function
-Backend/AI Flow	Langflow, Groq Models	LLM-powered summarization & recommendation generation with prompt engineering
-Frontend/App	Streamlit / Gradio	Interactive dashboard deployment
-Core Process	NLP, Transformers, Text Classification	Text preprocessing, sentiment analysis, thematic categorization
-Data Source	SerpAPI (Google Maps Reviews API)	API-based review extraction
+## 🛠️ Tech Stack
+
+| Component        | Technology / Skill                  | Function                                                                 |
+|------------------|-------------------------------------|--------------------------------------------------------------------------|
+| **Backend/AI Flow** | Langflow, Groq API, Hugging Face Models | LLM-powered summarization & recommendation generation with prompt engineering |
+| **Frontend/App** | Streamlit / Gradio                  | Interactive dashboard deployment                                         |
+| **Core Process** | NLP, Transformers, Text Classification | Text preprocessing, sentiment analysis, thematic categorization           |
+| **Data Source**  | SerpAPI (Google Maps Reviews API)   | API-based review extraction                                              |
 
 # ✨ Core Features
 Each review undergoes a structured 6-point analysis:
