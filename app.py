@@ -64,5 +64,5 @@ if st.button("Analyze Review"):
         output = analyze_review(input_value, url, headers)
 
         # Display result
-        st.subheader(":blue[AI Output:]", divider="rainbow")
+        st.subheader(":red[Output:]", divider="rainbow")
         st.write(output)
