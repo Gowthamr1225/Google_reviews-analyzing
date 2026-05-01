@@ -1,68 +1,73 @@
 import streamlit as st
 import requests
-import os
 import uuid
+import os
+from dotenv import load_dotenv
 
-url = ""  # The complete API endpoint URL for this flow
+# --- SECURE API CONFIGURATION ---
+# Load variables from the .env file
+load_dotenv()
 
+# Fetch the credentials securely
+API_KEY = os.getenv("LANGFLOW_API_KEY")
+API_URL = os.getenv("LANGFLOW_API_URL")
 
-headers = {
-    "X-DataStax-Current-Org": "", 
-    "Authorization": "Bearer <YOUR_APPLICATION_TOKEN>", 
-    "Content-Type": "application/json", 
-    "Accept": "application/json", 
-    }
+# --- PAGE CONFIG ---
+st.set_page_config(page_title="Review Analyzer", layout="wide")
+st.title("📊 Google Reviews Analyzer Dashboard")
 
-# ---- Function to call Langflow API ----
-def analyze_review(input_value: str, url: str, headers: dict) -> str:
-    payload = {
-        "output_type": "chat",
-        "input_type": "chat",
-        "input_value": input_value,
-        "session_id": str(uuid.uuid4())
-    }
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-
-        outputs = data.get("outputs", [])
-        if outputs and "results" in outputs[0]["outputs"][0]:
-            return outputs[0]["outputs"][0]["results"]["message"].get("text", "_No text found._")
-        return "_No response from Langflow API._"
-    except requests.exceptions.RequestException as e:
-        return f"🚨 Network error: {e}"
-    except ValueError:
-        return "⚠️ Invalid JSON response from Langflow API."
-    except Exception as e:
-        return f"⚠️ Unexpected error: {e}"
-
-# ---- Streamlit UI ----
-st.title("🌟 Review Analyzer")
-st.markdown("Enter details below and get an **LLM-generated markdown summary**!")
-
-# Input fields
-place_id = st.text_input("🏷️ Place ID", placeholder="Enter the place ID here...")
-place_name = st.text_input("📍 Place Name", placeholder="Enter the place name here...")
-review_input = st.text_area("📝 Review Text", placeholder="Type your review text here...")
-
-# Analyze button
-if st.button("Analyze Review"):
-    if not (place_id.strip() or place_name.strip() or review_input.strip()):
-        st.warning("⚠️ Please enter at least one field (Place ID, Place Name, or Review Text).")
+# --- SIDEBAR ---
+with st.sidebar:
+    st.header("⚙️ System Status")
+    # Visually confirm the API key is loaded without revealing it
+    if API_KEY and API_URL:
+        st.success("✅ API Connected via .env")
     else:
-        # Build input dynamically based on what was provided
-        input_value = ""
-        if place_id.strip():
-            input_value += f"Place ID: {place_id}\n"
-        if place_name.strip():
-            input_value += f"Place Name: {place_name}\n"
-        if review_input.strip():
-            input_value += f"Review: {review_input}\n"
+        st.error("❌ Missing .env configuration. Please check your variables.")
+        st.stop() # Stops the app from running if credentials are missing
+        
+    st.markdown("---")
+    st.info("Agentic AI Pipeline: Active\nModel: Llama-3 70B (Groq)")
 
-        # Call API
-        output = analyze_review(input_value, url, headers)
+# --- MAIN UI: USER INPUT ---
+st.write("Enter a Location Name or Place ID to analyze 2,000+ reviews.")
+user_input = st.text_input("Location Name / Place ID", placeholder="e.g., Starbucks Times Square")
 
-        # Display result
-        st.subheader(":red[Output:]", divider="rainbow")
-        st.write(output)
+# --- ACTION BUTTON ---
+if st.button("Run Analysis", type="primary"):
+    
+    if not user_input:
+        st.warning("⚠️ Please enter a Location Name or Place ID.")
+    else:
+        with st.spinner(f"Agentic AI is processing reviews for {user_input}..."):
+            
+            # 1. Setup API Request
+            payload = {
+                "output_type": "chat",
+                "input_type": "chat",
+                "input_value": user_input,
+                "session_id": str(uuid.uuid4())
+            }
+            headers = {"x-api-key": API_KEY, "Content-Type": "application/json"}
+            
+            try:
+                # 2. Make the API Call
+                response = requests.post(API_URL, json=payload, headers=headers)
+                response.raise_for_status() 
+                
+                # 3. Extract Langflow Response
+                try:
+                    result_text = response.json()['outputs'][0]['outputs'][0]['results']['message']['text']
+                except (KeyError, IndexError):
+                    # Fallback just in case the Langflow output structure changes slightly
+                    result_text = "Failed to extract exact message. Raw response:\n\n" + str(response.json())
+                
+                st.success("✅ Analysis Complete!")
+                st.divider()
+
+                # --- TEXT/MARKDOWN RESULTS ---
+                # This will render the AI's markdown tables, bold text, and lists perfectly
+                st.markdown(result_text)
+
+            except requests.exceptions.RequestException as e:
+                st.error(f"❌ API Connection Error: {e}")
