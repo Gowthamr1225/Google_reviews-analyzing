@@ -27,25 +27,37 @@ with st.sidebar:
         st.stop() # Stops the app from running if credentials are missing
         
     st.markdown("---")
-    st.info("Agentic AI Pipeline: Active\nModel: Llama-3 70B (Groq)")
+    st.info("Agentic AI Pipeline: Active\nModel: Llama-3.3 70B (Groq)")
 
-# --- MAIN UI: USER INPUT ---
-st.write("Enter a Location Name or Place ID to analyze 2,000+ reviews.")
-user_input = st.text_input("Location Name / Place ID", placeholder="e.g., Starbucks Times Square")
+# --- MAIN UI: MODE SELECTION & USER INPUT ---
+analysis_mode = st.radio(
+    "Select Analysis Mode:",
+    ["🏢 Bulk Location Analysis ", "📝 Single Review Analysis"]
+)
+
+if analysis_mode == "🏢 Bulk Location Analysis ":
+    st.write("Enter a Location Name or Place ID to analyze bulk reviews.")
+    user_input = st.text_input("Location Name / Place ID", placeholder="e.g., Starbucks Times Square")
+    loading_text = f"Agentic AI is processing reviews for {user_input}..."
+else:
+    st.write("Paste a single customer review text below for deep analysis.")
+    user_input = st.text_area("Review Text", placeholder="e.g., The food was amazing but the service was a bit slow...", height=150)
+    loading_text = "Agentic AI is analyzing the single review..."
 
 # --- ACTION BUTTON ---
 if st.button("Run Analysis", type="primary"):
     
     if not user_input:
-        st.warning("⚠️ Please enter a Location Name or Place ID.")
+        st.warning("⚠️ Please provide the required input before running the analysis.")
     else:
-        with st.spinner(f"Agentic AI is processing reviews for {user_input}..."):
+        with st.spinner(loading_text):
             
             # 1. Setup API Request
+            # The user_input seamlessly passes either the location name or the review text
             payload = {
                 "output_type": "chat",
                 "input_type": "chat",
-                "input_value": user_input,
+                "input_value": user_input, 
                 "session_id": str(uuid.uuid4())
             }
             headers = {"x-api-key": API_KEY, "Content-Type": "application/json"}
